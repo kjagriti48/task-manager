@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var userStore = map[string]string{} // username -> hashed password
-var jwtKey = []byte("my-secret-key")
+var userStore = map[string]string{}  // username -> hashed password
+var jwtKey = []byte("my-secret-key") // ✅ Must be the exact same string
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var u models.User
@@ -20,12 +20,12 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "Invalid JSON input")
 		return
 	}
-	if u.Username == "" || u.Password == "" {
+	if u.Email == "" || u.Password == "" {
 		writeError(w, http.StatusBadRequest, "Username and password are required")
 		return
 	}
 
-	if _, exists := userStore[u.Username]; exists {
+	if _, exists := userStore[u.Email]; exists {
 		writeError(w, http.StatusBadRequest, "User already exits")
 		return
 	}
@@ -36,7 +36,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userStore[u.Username] = string(hashed)
+	userStore[u.Email] = string(hashed)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Signup successful"})
@@ -51,7 +51,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, ok := userStore[u.Username]
+	hashedPassword, ok := userStore[u.Email]
 	if !ok {
 		writeError(w, http.StatusUnauthorized, "Invalid Credentials")
 		return
@@ -64,7 +64,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": u.Username,
+		"username": u.Email,
 		"exp":      time.Now().Add(time.Hour * 1).Unix(),
 	})
 

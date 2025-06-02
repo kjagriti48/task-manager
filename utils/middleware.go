@@ -19,6 +19,7 @@ func JWTMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		fmt.Println("🔍 Raw Authorization:", authHeader)
+
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			http.Error(w, "Missing or invalid Authorization header", http.StatusUnauthorized)
 			return
@@ -29,6 +30,7 @@ func JWTMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		claims := &jwt.MapClaims{}
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
+
 		})
 
 		if err != nil || !token.Valid {
@@ -45,8 +47,15 @@ func JWTMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		fmt.Println("✅ Authenticated:", username)
+
 		ctx := context.WithValue(r.Context(), UsernameKey, username)
 		next.ServeHTTP(w, r.WithContext(ctx))
+
+		fmt.Println("🔍 Authorization Header:", r.Header.Get("Authorization"))
+		fmt.Println("🧪 Token Claims:", claims)
+		fmt.Println("✅ Email Extracted:", username)
+
 	}
 }
 

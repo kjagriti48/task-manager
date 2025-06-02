@@ -7,9 +7,11 @@ import (
 )
 
 func RegisterRoutes() {
-	http.HandleFunc("/signup", utils.EnableCORS(handlers.SignupHandler))
-	http.HandleFunc("/login", utils.EnableCORS(handlers.LoginHandler))
-	http.HandleFunc("/tasks", utils.EnableCORS(utils.JWTMiddleware(handlers.AddTaskHandler)))   // POST
-	http.HandleFunc("/tasks/", utils.EnableCORS(utils.JWTMiddleware(handlers.ListTaskHandler))) // GET
+	http.HandleFunc("/api/signup", utils.EnableCORS(handlers.SignupHandler))
+	http.HandleFunc("/api/login", utils.EnableCORS(handlers.LoginHandler))
+	http.HandleFunc("/api/tasks", utils.EnableCORS(utils.JWTMiddleware(handlers.AddTaskHandler)))   // POST
+	http.HandleFunc("/api/tasks/", utils.EnableCORS(utils.JWTMiddleware(handlers.ListTaskHandler))) // GET
+	http.HandleFunc("/api/tasks/delete", utils.EnableCORS(utils.JWTMiddleware(handlers.DeleteTaskHandler)))
+	http.HandleFunc("/api/tasks/toggle", utils.EnableCORS(utils.JWTMiddleware(handlers.ToggleTaskHandler)))
 
 }
